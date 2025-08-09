@@ -1,0 +1,420 @@
+/**
+ * Advanced Code Renderer Admin Scripts
+ */
+(function($) {
+    'use strict';
+
+    // Initialize when DOM is ready
+    $(document).ready(function() {
+        ACRAdmin.init();
+    });
+
+    // Main ACR Admin object
+    window.ACRAdmin = {
+        
+        /**
+         * Initialize admin functionality
+         */
+        init: function() {
+            this.setupSettingsPage();
+            this.setupPreview();
+            this.bindEvents();
+            this.setupTooltips();
+            this.initializeColorPicker();
+        },
+
+        /**
+         * Setup settings page functionality
+         */
+        setupSettingsPage: function() {
+            // Add live preview functionality
+            this.createPreviewSection();
+            
+            // Setup form validation
+            this.setupFormValidation();
+            
+            // Setup dependency handling
+            this.handleSettingDependencies();
+        },
+
+        /**
+         * Create preview section
+         */
+        createPreviewSection: function() {
+            var previewHTML = `
+                <div class="acr-preview-section">
+                    <h4>Live Preview</h4>
+                    <div id="acr-preview-container">
+                        <div class="acr-code-block" id="acr-preview-block">
+                            <div class="acr-code-title">Example Function</div>
+                            <pre class="language-javascript line-numbers"><code>function exampleFunction() {
+    const greeting = "Hello, World!";
+    console.log(greeting);
+    
+    // Calculate something
+    const numbers = [1, 2, 3, 4, 5];
+    const sum = numbers.reduce((a, b) => a + b, 0);
+    
+    return {
+        message: greeting,
+        total: sum
+    };
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            $('.form-table').last().after(previewHTML);
+            this.updatePreview();
+        },
+
+        /**
+         * Update preview based on current settings
+         */
+        updatePreview: function() {
+            var $preview = $('#acr-preview-block');
+            var $preElement = $preview.find('pre');
+            
+            // Update theme
+            var theme = $('select[name="acr_options[theme]"]').val();
+            $preview.toggleClass('acr-dark', theme === 'dark');
+            
+            // Update line numbers
+            var lineNumbers = $('input[name="acr_options[line_numbers]"]').is(':checked');
+            $preElement.toggleClass('line-numbers', lineNumbers);
+            
+            // Update font size
+            var fontSize = $('input[name="acr_options[font_size]"]').val() || '14';
+            $preElement.find('code').css('font-size', fontSize + 'px');
+            
+            // Update language label visibility
+            var showLanguage = $('input[name="acr_options[show_language]"]').is(':checked');
+            var $langLabel = $preview.find('.acr-language-label');
+            if (showLanguage && !$langLabel.length) {
+                $preview.prepend('<span class="acr-language-label">JS</span>');
+            } else if (!showLanguage) {
+                $langLabel.remove();
+            }
+            
+            // Trigger syntax highlighting if Prism is available
+            if (window.Prism) {
+                Prism.highlightElement($preElement.find('code')[0]);
+            }
+        },
+
+        /**
+         * Setup form validation
+         */
+        setupFormValidation: function() {
+            // Font size validation
+            $('input[name="acr_options[font_size]"]').on('input', function() {
+                var value = parseInt($(this).val());
+                var min = parseInt($(this).attr('min'));
+                var max = parseInt($(this).attr('max'));
+                
+                if (value < min) {
+                    $(this).val(min);
+                } else if (value > max) {
+                    $(this).val(max);
+                }
+                
+                ACRAdmin.updatePreview();
+            });
+        },
+
+        /**
+         * Handle setting dependencies
+         */
+        handleSettingDependencies: function() {
+            // Line numbers dependency
+            var $lineNumbersCheckbox = $('input[name="acr_options[line_numbers]"]');
+            var $copyButtonCheckbox = $('input[name="acr_options[copy_button]"]');
+            
+            function toggleDependencies() {
+                var lineNumbersEnabled = $lineNumbersCheckbox.is(':checked');
+                var copyButtonEnabled = $copyButtonCheckbox.is(':checked');
+                
+                // Show/hide related options based on dependencies
+                // This can be expanded based on plugin features
+            }
+            
+            $lineNumbersCheckbox.on('change', toggleDependencies);
+            $copyButtonCheckbox.on('change', toggleDependencies);
+            
+            // Initial state
+            toggleDependencies();
+        },
+
+        /**
+         * Bind events
+         */
+        bindEvents: function() {
+            // Settings change events for live preview
+            $('select[name="acr_options[theme]"]').on('change', this.updatePreview.bind(this));
+            $('input[name="acr_options[line_numbers]"]').on('change', this.updatePreview.bind(this));
+            $('input[name="acr_options[show_language]"]').on('change', this.updatePreview.bind(this));
+            $('input[name="acr_options[font_size]"]').on('input', this.debounce(this.updatePreview.bind(this), 300));
+            
+            // Reset to defaults button
+            this.addResetButton();
+            
+            // Export/Import settings
+            this.setupImportExport();
+            
+            // Help tooltips
+            this.setupHelpSystem();
+        },
+
+        /**
+         * Add reset to defaults button
+         */
+        addResetButton: function() {
+            var resetButton = '<button type="button" class="button button-secondary acr-reset-defaults" style="margin-left: 10px;">Reset to Defaults</button>';
+            $('.submit').append(resetButton);
+            
+            $('.acr-reset-defaults').on('click', function(e) {
+                e.preventDefault();
+                if (confirm('Are you sure you want to reset all settings to their default values?')) {
+                    ACRAdmin.resetToDefaults();
+                }
+            });
+        },
+
+        /**
+         * Reset settings to defaults
+         */
+        resetToDefaults: function() {
+            $('select[name="acr_options[theme]"]').val('default');
+            $('input[name="acr_options[line_numbers]"]').prop('checked', false);
+            $('input[name="acr_options[copy_button]"]').prop('checked', true);
+            $('input[name="acr_options[word_wrap]"]').prop('checked', false);
+            $('input[name="acr_options[font_size]"]').val('14');
+            $('input[name="acr_options[show_language]"]').prop('checked', true);
+            
+            this.updatePreview();
+            
+            // Show success message
+            this.showNotice('Settings reset to defaults successfully!', 'success');
+        },
+
+        /**
+         * Setup import/export functionality
+         */
+        setupImportExport: function() {
+            var importExportHTML = `
+                <div class="acr-sidebar-box">
+                    <h3>Import/Export Settings</h3>
+                    <p>
+                        <button type="button" class="button button-secondary acr-export-settings">Export Settings</button>
+                    </p>
+                    <p>
+                        <input type="file" id="acr-import-file" accept=".json" style="display: none;">
+                        <button type="button" class="button button-secondary acr-import-settings">Import Settings</button>
+                    </p>
+                </div>
+            `;
+            
+            $('.acr-sidebar').append(importExportHTML);
+            
+            // Export functionality
+            $('.acr-export-settings').on('click', function() {
+                ACRAdmin.exportSettings();
+            });
+            
+            // Import functionality
+            $('.acr-import-settings').on('click', function() {
+                $('#acr-import-file').click();
+            });
+            
+            $('#acr-import-file').on('change', function() {
+                ACRAdmin.importSettings(this.files[0]);
+            });
+        },
+
+        /**
+         * Export settings to JSON file
+         */
+        exportSettings: function() {
+            var settings = {};
+            
+            // Collect all settings
+            $('form [name^="acr_options"]').each(function() {
+                var $field = $(this);
+                var name = $field.attr('name').replace('acr_options[', '').replace(']', '');
+                var value;
+                
+                if ($field.is(':checkbox')) {
+                    value = $field.is(':checked');
+                } else {
+                    value = $field.val();
+                }
+                
+                settings[name] = value;
+            });
+            
+            var dataStr = JSON.stringify(settings, null, 2);
+            var dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            var exportFileDefaultName = 'acr-settings-' + new Date().toISOString().split('T')[0] + '.json';
+            
+            var linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            this.showNotice('Settings exported successfully!', 'success');
+        },
+
+        /**
+         * Import settings from JSON file
+         */
+        importSettings: function(file) {
+            if (!file) return;
+            
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    var settings = JSON.parse(e.target.result);
+                    ACRAdmin.applyImportedSettings(settings);
+                    ACRAdmin.showNotice('Settings imported successfully!', 'success');
+                } catch (error) {
+                    ACRAdmin.showNotice('Error importing settings. Please check the file format.', 'error');
+                }
+            };
+            reader.readAsText(file);
+        },
+
+        /**
+         * Apply imported settings
+         */
+        applyImportedSettings: function(settings) {
+            Object.keys(settings).forEach(function(key) {
+                var $field = $('[name="acr_options[' + key + ']"]');
+                var value = settings[key];
+                
+                if ($field.is(':checkbox')) {
+                    $field.prop('checked', value);
+                } else {
+                    $field.val(value);
+                }
+            });
+            
+            this.updatePreview();
+        },
+
+        /**
+         * Setup tooltips for help
+         */
+        setupTooltips: function() {
+            // Add help icons next to settings
+            var helpItems = {
+                'theme': 'Choose between light and dark color themes for code blocks.',
+                'line_numbers': 'Display line numbers on the left side of code blocks.',
+                'copy_button': 'Show a copy button that allows users to copy code to clipboard.',
+                'word_wrap': 'Wrap long lines of code instead of showing horizontal scroll.',
+                'font_size': 'Set the font size for code text in pixels.',
+                'show_language': 'Display the programming language label on code blocks.'
+            };
+            
+            Object.keys(helpItems).forEach(function(key) {
+                var $field = $('[name="acr_options[' + key + ']"]');
+                var $row = $field.closest('tr');
+                var $helpIcon = $('<span class="acr-help-icon dashicons dashicons-editor-help" title="' + helpItems[key] + '"></span>');
+                
+                $row.find('th').append($helpIcon);
+            });
+            
+            // Initialize tooltips
+            $('.acr-help-icon').tooltip();
+        },
+
+        /**
+         * Setup help system
+         */
+        setupHelpSystem: function() {
+            // Add contextual help tab
+            if (typeof wp !== 'undefined' && wp.hooks) {
+                wp.hooks.addAction('admin_page_loaded', 'acr', function() {
+                    ACRAdmin.addContextualHelp();
+                });
+            }
+        },
+
+        /**
+         * Initialize color picker (if needed for future features)
+         */
+        initializeColorPicker: function() {
+            // Placeholder for future color customization features
+            if (typeof wp !== 'undefined' && wp.colorPicker) {
+                $('.acr-color-picker').wpColorPicker();
+            }
+        },
+
+        /**
+         * Show admin notice
+         */
+        showNotice: function(message, type) {
+            type = type || 'info';
+            var noticeClass = 'notice notice-' + type + ' is-dismissible';
+            var notice = '<div class="' + noticeClass + '"><p>' + message + '</p></div>';
+            
+            $('.acr-admin-wrap h1').after(notice);
+            
+            // Auto-dismiss after 5 seconds
+            setTimeout(function() {
+                $('.notice.is-dismissible').fadeOut();
+            }, 5000);
+        },
+
+        /**
+         * Debounce function for performance
+         */
+        debounce: function(func, wait) {
+            var timeout;
+            return function executedFunction() {
+                var context = this;
+                var args = arguments;
+                var later = function() {
+                    timeout = null;
+                    func.apply(context, args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        },
+
+        /**
+         * Validate settings before save
+         */
+        validateSettings: function() {
+            var isValid = true;
+            var errors = [];
+            
+            // Validate font size
+            var fontSize = parseInt($('input[name="acr_options[font_size]"]').val());
+            if (fontSize < 10 || fontSize > 24) {
+                errors.push('Font size must be between 10 and 24 pixels.');
+                isValid = false;
+            }
+            
+            if (!isValid) {
+                this.showNotice('Please fix the following errors: ' + errors.join(' '), 'error');
+            }
+            
+            return isValid;
+        }
+    };
+
+    // Form submission validation
+    $('form').on('submit', function(e) {
+        if (!ACRAdmin.validateSettings()) {
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    // Export for external use
+    window.AdvancedCodeRendererAdmin = ACRAdmin;
+
+})(jQuery);

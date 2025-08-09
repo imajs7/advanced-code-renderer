@@ -1,0 +1,228 @@
+/* TinyMCE Editor Styles */
+.mce-i-code:before {
+  content: "\f475";
+  font-family: dashicons;
+}
+
+.acr-code-button {
+  background-image: none !important;
+}
+
+.acr-code-placeholder {
+  background: #f0f0f0;
+  border: 2px dashed #ccc;
+  padding: 10px;
+  margin: 10px 0;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  cursor: pointer;
+}
+
+.acr-code-placeholder:hover {
+  background: #e0e0e0;
+  border-color: #999;
+}
+
+.acr-code-placeholder:before {
+  content: "\f475";
+  font-family: dashicons;
+  margin-right: 5px;
+  font-size: 16px;
+}
+
+/* Classic Editor Visual Mode Improvements */
+.wp-editor-area {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Prevent auto-formatting of code blocks in visual editor */
+.mce-content-body .acr-code-placeholder {
+  white-space: pre-wrap;
+  font-family: "Courier New", monospace;
+}
+
+/* TinyMCE Dialog Improvements */
+.mce-window .mce-textbox {
+  font-family: "Courier New", monospace;
+}
+
+.mce-window .mce-textbox[aria-label="Code:"] {
+  min-height: 200px !important;
+  font-size: 13px;
+  line-height: 1.5;
+} /* Advanced Code Renderer Admin Styles */
+.acr-admin-wrap {
+  max-width: 1200px;
+}
+
+.acr-admin-content {
+  display: flex;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+.acr-main-content {
+  flex: 2;
+}
+
+.acr-sidebar {
+  flex: 1;
+  max-width: 300px;
+}
+
+.acr-sidebar-box {
+  background: #fff;
+  border: 1px solid #c3c4c7;
+  border-radius: 4px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.acr-sidebar-box h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #23282d;
+  font-size: 16px;
+}
+
+.acr-usage-examples h4 {
+  margin-top: 20px;
+  margin-bottom: 8px;
+  color: #555;
+  font-size: 14px;
+}
+
+.acr-usage-examples h4:first-child {
+  margin-top: 0;
+}
+
+.acr-usage-examples code {
+  display: block;
+  background: #f6f7f7;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  font-size: 12px;
+  line-height: 1.4;
+  margin-bottom: 15px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.acr-admin-content .form-table th {
+  width: 200px;
+  padding: 15px 0;
+}
+
+.acr-admin-content .form-table td {
+  padding: 15px 0;
+}
+
+.acr-admin-content select,
+.acr-admin-content input[type="number"] {
+  min-width: 150px;
+}
+
+/* Settings page specific styles */
+.acr-settings-section {
+  background: #fff;
+  border: 1px solid #c3c4c7;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.acr-settings-section h2 {
+  margin: 0;
+  padding: 15px 20px;
+  background: #f6f7f7;
+  border-bottom: 1px solid #c3c4c7;
+  font-size: 16px;
+}
+
+.acr-settings-section .form-table {
+  margin: 0;
+  padding: 20px;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .acr-admin-content {
+    flex-direction: column;
+  }
+
+  .acr-sidebar {
+    max-width: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .acr-usage-examples code {
+    font-size: 11px;
+    padding: 8px;
+  }
+
+  .acr-admin-content .form-table th,
+  .acr-admin-content .form-table td {
+    display: block;
+    width: 100%;
+    padding: 10px 0;
+  }
+
+  .acr-admin-content .form-table th {
+    font-weight: bold;
+    border-bottom: none;
+  }
+}
+
+/* Feature highlight boxes */
+.acr-feature-highlight {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.acr-feature-highlight h3 {
+  margin-top: 0;
+  color: white;
+}
+
+.acr-feature-highlight p {
+  margin-bottom: 0;
+  opacity: 0.9;
+}
+
+/* Settings form improvements */
+.acr-setting-description {
+  font-style: italic;
+  color: #666;
+  font-size: 13px;
+  margin-top: 5px;
+}
+
+.acr-checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.acr-number-input {
+  width: 80px !important;
+}
+
+/* Preview section */
+.acr-preview-section {
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 15px;
+  margin-top: 20px;
+}
+
+.acr-preview-section h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #333;
+}
