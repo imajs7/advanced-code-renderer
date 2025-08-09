@@ -76,8 +76,6 @@ wp plugin install advanced-code-renderer.zip --activate
 
 ## File Structure
 
-Create the following directory structure in your WordPress plugins folder:
-
 ```
 wp-content/plugins/advanced-code-renderer/
 ├── advanced-code-renderer.php          # Main plugin file
@@ -368,7 +366,7 @@ We welcome contributions! Please follow these guidelines:
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/advanced-code-renderer.git
+git clone https://github.com/imajs7/advanced-code-renderer.git
 
 # Install dependencies
 npm install
