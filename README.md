@@ -208,15 +208,6 @@ The plugin supports 150+ programming languages including:
 - Go, Rust, Swift, Kotlin, Dart
 - SQL, JSON, XML, YAML, Markdown
 
-**Frameworks & Tools:**
-
-- React JSX, Vue, Angular
-- Docker, NGINX, Apache
-- Shell/Bash, PowerShell
-- Git, SVN
-
-**And many more via Prism.js autoloader!**
-
 ## Configuration
 
 ### Plugin Settings
